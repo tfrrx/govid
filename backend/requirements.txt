@@ -11,3 +11,7 @@ httpx==0.27.2
 # 借页面内 SDK 生成 x-secsdk-web-signature。不需要 playwright install 下载 Chromium，
 # 直接复用系统已装的 Google Chrome。缺这个包时只有抖音不可用，其他平台不受影响。
 playwright>=1.48
+
+# 下载内核。必须从 PyPI 正式安装，不要 editable 装本地源码目录，
+# 否则 venv 会依赖项目内的 yt-dlp/ 源码，换台机器就起不来。
+yt-dlp[default]>=2026.8.19
