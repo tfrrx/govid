@@ -1,0 +1,293 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   GoVid 设计系统 · Design Tokens
+   计划书 3.4.1 的 token 全量落地，并按 Tailwind v4 的 @theme 机制注册，
+   这样 bg-primary / ring-primary / rounded-pill 之类都能直接当工具类用。
+   ========================================================================== */
+
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+
+  /* 品牌色 - 绿色系 */
+  --color-primary: #10b981;
+  --color-primary-dark: #059669;
+  --color-primary-deep: #047857;
+  --color-primary-soft: #ecfdf5;
+
+  /* 辅助色 */
+  --color-accent: #f59e0b;
+  --color-accent-soft: #fffbeb;
+  --color-error: #ef4444;
+  --color-error-soft: #fef2f2;
+
+  /* 背景 / 文字 / 边框 */
+  --color-surface: #ffffff;
+  --color-surface-sub: #f8fafc;
+  --color-ink: #0f172a;
+  --color-ink-soft: #64748b;
+  --color-hairline: #e2e8f0;
+
+  /* 圆角 */
+  --radius-base: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-pill: 9999px;
+
+  /* 阴影 */
+  --shadow-card: 0 10px 15px -3px rgb(15 23 42 / 0.08),
+    0 4px 6px -4px rgb(15 23 42 / 0.05);
+  --shadow-primary: 0 20px 25px -5px rgb(16 185 129 / 0.18),
+    0 8px 10px -6px rgb(16 185 129 / 0.12);
+  --shadow-float: 0 24px 48px -12px rgb(15 23 42 / 0.18);
+
+  /* 动效（计划书：适度微交互 250-350ms） */
+  --transition-base: 250ms ease-out;
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-surface font-sans text-ink antialiased;
+    font-feature-settings: "kern" 1, "liga" 1;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* 键盘可达性：任何可交互元素都必须有可见焦点环，绝不做 outline-none 裸奔 */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: rgb(16 185 129 / 0.22);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+/* ==========================================================================
+   Components
+   ========================================================================== */
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-6 lg:px-8;
+  }
+
+  .card {
+    @apply rounded-2xl border border-hairline bg-surface shadow-card;
+  }
+
+  /* 计划书 3.4.1 的 .input-pill */
+  .input-pill {
+    @apply w-full rounded-pill border border-transparent bg-surface px-5 py-3.5 text-base text-ink
+      ring-1 ring-hairline placeholder:text-ink-soft/70;
+    transition: box-shadow var(--transition-base), border-color var(--transition-base);
+  }
+
+  .input-pill:hover {
+    @apply ring-hairline;
+    box-shadow: 0 4px 12px -4px rgb(15 23 42 / 0.1);
+  }
+
+  .input-pill:focus {
+    @apply outline-none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgb(16 185 129 / 0.16);
+  }
+
+  .input-pill[aria-invalid="true"] {
+    border-color: var(--color-error);
+    box-shadow: 0 0 0 4px rgb(239 68 68 / 0.14);
+  }
+
+  /* 计划书 3.4.1 的 .btn-primary */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-pill bg-primary px-6 py-3.5
+      text-base font-medium text-white;
+    transition: background-color var(--transition-base), box-shadow var(--transition-base),
+      transform var(--transition-base);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    @apply bg-primary-dark;
+    box-shadow: var(--shadow-primary);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .btn-primary:disabled {
+    @apply cursor-not-allowed bg-primary/45 text-white/85;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-pill border border-hairline
+      bg-surface px-5 py-2.5 text-sm font-medium text-ink;
+    transition: border-color var(--transition-base), background-color var(--transition-base),
+      color var(--transition-base);
+  }
+
+  .btn-secondary:hover {
+    @apply border-primary/45 bg-primary-soft text-primary-deep;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-pill border border-hairline bg-surface-sub
+      px-3 py-1 text-xs font-medium text-ink-soft;
+  }
+
+  /* 计划书 3.4.1 的 .card-hover */
+  .card-hover {
+    transition: transform var(--transition-base), box-shadow var(--transition-base),
+      border-color var(--transition-base);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-primary);
+    @apply border-primary/25;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 rounded-pill border border-primary/20 bg-primary-soft
+      px-3.5 py-1.5 text-xs font-semibold tracking-wide text-primary-deep;
+  }
+
+  .section-title {
+    @apply text-3xl font-bold tracking-tight text-ink sm:text-4xl;
+  }
+
+  .section-sub {
+    @apply text-base leading-relaxed text-ink-soft sm:text-lg;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-lg bg-surface-sub;
+  }
+
+  .skeleton::after {
+    content: "";
+    @apply absolute inset-0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(255 255 255 / 0.75),
+      transparent
+    );
+    animation: shimmer 1.4s infinite;
+  }
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility marquee-mask {
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    #000 7%,
+    #000 93%,
+    transparent 100%
+  );
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 42s linear infinite;
+  will-change: transform;
+}
+
+.marquee-track:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+.animate-rise {
+  animation: rise-in 420ms var(--ease-out-soft) both;
+}
+
+.animate-float {
+  animation: float-soft 6s ease-in-out infinite;
+}
+
+/* 计划书要求桌面优先，但手机访问也要能用 */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-float,
+  .animate-rise {
+    animation: none;
+  }
+}

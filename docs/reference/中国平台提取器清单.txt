@@ -1,0 +1,74 @@
+56.com
+AcFunBangumi
+AcFunVideo
+BaiduVideo
+BiliBili
+BiliBiliBangumi
+BiliBiliBangumiMedia
+BiliBiliBangumiSeason
+BiliBiliDynamic
+BiliBiliPlayer
+BiliBiliSearch
+BiliIntl
+BiliLive
+Bilibili category extractor
+BilibiliAudio
+BilibiliAudioAlbum
+BilibiliCheese
+BilibiliCheeseSeason
+BilibiliCollectionList
+BilibiliFavoritesList
+BilibiliPlaylist
+BilibiliSeriesList
+BilibiliSpaceAudio
+BilibiliSpaceVideo
+BilibiliWatchlater
+CCTV
+Douyin
+DouyuShow
+DouyuTV
+Huajiao
+Ixigua
+Ku6
+Liability
+MangoTV
+PearVideo
+QingTing
+Sina
+Sohu
+SohuV
+Weibo
+WeiboUser
+WeiboVideo
+XiaoHongShu
+Xinpianchang
+biliIntl:series
+huya:live
+huya:video
+iqiyi
+kuwo:album (CURRENTLY BROKEN)
+kuwo:category (CURRENTLY BROKEN)
+kuwo:chart (CURRENTLY BROKEN)
+kuwo:mv (CURRENTLY BROKEN)
+kuwo:singer (CURRENTLY BROKEN)
+kuwo:song (CURRENTLY BROKEN)
+netease:album
+netease:djradio
+netease:mv
+netease:playlist
+netease:program
+netease:singer
+netease:song
+qqmusic
+qqmusic:album
+qqmusic:mv
+qqmusic:playlist
+qqmusic:singer
+qqmusic:toplist
+toutiao
+vqq:series
+vqq:video
+ximalaya
+ximalaya:album
+youku
+youku:show

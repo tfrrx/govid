@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# 下载临时目录与产物
+tmp/
+downloads/
+
+# 前端
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+
+# 环境与密钥
+.env
+.env.local
+cookies.txt
+
+# 系统
+.DS_Store
+.idea/
+.vscode/
+
+# 上游依赖源码（yt-dlp 由 pip 装进 .venv，此目录只是参考用的 clone，不进仓库）
+yt-dlp/
+
+# 本地工具链（ffmpeg 软链指向 .venv）
+.bin/
+
+# WorkBuddy 工作目录
+.workbuddy/
+
+# 日志
+*.log
