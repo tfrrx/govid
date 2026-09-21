@@ -16,7 +16,7 @@
 |------|------|
 | [`reference/yt-dlp-extractors-2026-09-21.txt`](./reference/yt-dlp-extractors-2026-09-21.txt) | yt-dlp 全部提取器清单（1752 条，含子项与损坏标记） |
 | [`reference/中国平台提取器清单.txt`](./reference/中国平台提取器清单.txt) | 从上面筛出的中国平台相关提取器（74 条） |
-| [`screenshots/`](./screenshots/) | 浏览器验收截图（首页 / 解析结果 / 下载完成 / 平台墙 / 定价 / FAQ / 移动端） |
+| [`screenshots/`](./screenshots/) | 浏览器验收截图（首页 / 解析结果 / 下载完成 / 平台墙 / 定价 / FAQ / 移动端 / 抖音视频与图集 / 分享文案入口） |
 
 ## 与项目根目录文档的关系
 
