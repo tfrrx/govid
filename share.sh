@@ -77,7 +77,9 @@ echo
     *trycloudflare.com*)
       url="$(printf '%s' "$line" | grep -oE 'https://[a-z0-9][a-z0-9-]*\.trycloudflare\.com' || true)"
       if [[ -n "${url}" ]]; then
-        printf '\n\033[1;32m>>> 分享这个地址给亲友： %s\033[0m\n\n' "${url}"
+        printf '\n\033[1;32m>>> 分享这个地址给亲友： %s\033[0m\n' "${url}"
+        printf '\033[1;33m    提醒：对方若在微信 / QQ 里点开，需要点右上角「⋯」→「在浏览器打开」，\033[0m\n'
+        printf '\033[1;33m    否则内置浏览器存不了文件（这是微信的限制，不是服务的问题）。\033[0m\n\n'
       fi
       ;;
   esac

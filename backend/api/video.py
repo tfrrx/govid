@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ipaddress
 import logging
+import re
 from pathlib import Path
 from urllib.parse import quote, urlparse
 
@@ -63,6 +64,30 @@ async def api_cancel_task(task_id: str) -> TaskResponse:
     return TaskResponse(**tasks.cancel_task(task_id))
 
 
+def _ascii_filename(name: str, fallback_stem: str = "govid-download") -> str:
+    """为不认 RFC 5987 的旧内核准备一个纯 ASCII 文件名。
+
+    微信 / QQ 内置浏览器（X5、WKWebView）只看 `filename=`，
+    完全不认 `filename*=UTF-8''…`；只发后者会让它们忽略整个
+    Content-Disposition，于是点下载变成「在页面里播视频」或者干脆毫无反应。
+
+    纯中文标题折完会剩下下划线，所以折叠为空时退回 `fallback_stem`
+    （通常是 `govid-<任务号>`），保证旧内核用户至少能拿到一个能识别的文件名。
+    """
+    stem, dot, ext = name.rpartition(".")
+    if not dot:
+        stem, ext = name, ""
+
+    ascii_stem = re.sub(r"[^A-Za-z0-9._-]+", "_", stem)
+    # 连续分隔符压成一个，避免出现 `Mortis._mygo` 这种夹杂
+    ascii_stem = re.sub(r"[._-]{2,}", "_", ascii_stem).strip("._-")
+    if len(ascii_stem) < 3:
+        ascii_stem = fallback_stem
+
+    ascii_ext = re.sub(r"[^A-Za-z0-9]+", "", ext)[:8] or "bin"
+    return f"{ascii_stem}.{ascii_ext}"
+
+
 @router.get("/tasks/{task_id}/file")
 async def api_download_file(task_id: str) -> FileResponse:
     task = tasks.get_task_raw(task_id)
@@ -75,8 +100,14 @@ async def api_download_file(task_id: str) -> FileResponse:
 
     filename = task.get("file_name") or path.name
     headers = {
-        # RFC 5987：中文文件名必须走 filename*，否则浏览器会乱码
-        "Content-Disposition": f"attachment; filename*=UTF-8''{quote(filename)}",
+        # filename 与 filename* 同时给：
+        #   - filename   是 ASCII 回退，给微信/QQ 内核等不认 RFC 5987 的浏览器；
+        #   - filename*= 是 RFC 5987 的 UTF-8 形式，现代浏览器优先用它拿到中文名。
+        # 只给 filename* 时部分内核会当作没有 Content-Disposition 处理。
+        "Content-Disposition": (
+            f'attachment; filename="{_ascii_filename(filename, f"govid-{task_id[:8]}")}"; '
+            f"filename*=UTF-8''{quote(filename, safe='')}"
+        ),
         "Cache-Control": "no-store",
         "X-Content-Type-Options": "nosniff",
     }

@@ -42,9 +42,35 @@ const {
 const health = ref(null)
 const healthError = ref('')
 
+/**
+ * 微信 / QQ / 微博等 App 的内置浏览器不支持 `download` 属性，点击下载链接
+ * 常常毫无反应（或变成在页面里播视频）。这是内核限制，前端绕不过去，
+ * 唯一出路是引导用户「在浏览器打开」——所以进页面就先说清楚。
+ */
+const IN_APP_PATTERNS = [
+  [/MicroMessenger/i, '微信'],
+  [/QQBrowser|QQ\/\d/i, 'QQ'],
+  [/Weibo/i, '微博'],
+  [/AlipayClient/i, '支付宝'],
+  [/DingTalk/i, '钉钉'],
+  [/BytedanceWebview|aweme/i, '抖音'],
+]
+
+const inAppName = ref('')
+const noticeClosed = ref(false)
+
+function detectInAppBrowser() {
+  const ua = navigator.userAgent || ''
+  for (const [pattern, name] of IN_APP_PATTERNS) {
+    if (pattern.test(ua)) return name
+  }
+  return ''
+}
+
 const workspaceVisible = computed(() => hasResult.value || !!task.value)
 
 onMounted(async () => {
+  inAppName.value = detectInAppBrowser()
   try {
     health.value = await api.health()
     if (health.value?.ffmpeg && !health.value.ffmpeg.available) {
@@ -91,6 +117,29 @@ function scrollToHero() {
       role="alert"
     >
       {{ healthError }} —— 请先启动后端服务（./run.sh），再刷新本页
+    </div>
+
+    <!-- 内置浏览器存不了文件，提前讲清楚，省得用户白点一通 -->
+    <div
+      v-if="inAppName && !noticeClosed"
+      class="border-b border-accent/25 bg-accent-soft px-4 py-3"
+      role="alert"
+    >
+      <div class="container-page flex items-start gap-3">
+        <AppIcon name="alert" :size="17" class="mt-0.5 shrink-0 text-accent" />
+        <p class="flex-1 text-sm leading-relaxed text-ink">
+          你正在{{ inAppName }}里打开，
+          <b class="font-semibold">{{ inAppName }}内置浏览器无法保存文件</b>。
+          请点右上角「⋯」→「在浏览器打开」，再回来点下载就能存到手机了。
+        </p>
+        <button
+          type="button"
+          class="shrink-0 rounded-pill px-3 py-1 text-xs text-ink-soft transition-colors hover:bg-surface"
+          @click="noticeClosed = true"
+        >
+          知道了
+        </button>
+      </div>
     </div>
 
     <main>
@@ -148,6 +197,7 @@ function scrollToHero() {
               :title="video?.title || ''"
               :file-url="fileUrl"
               :ttl-hours="health?.task_ttl_hours || 0"
+              :in-app-name="inAppName"
               @cancel="cancel"
               @reset="onReset"
             />

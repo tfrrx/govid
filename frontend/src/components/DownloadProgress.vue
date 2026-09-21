@@ -10,6 +10,8 @@ const props = defineProps({
   title: { type: String, default: '' },
   fileUrl: { type: Function, required: true },
   ttlHours: { type: Number, default: 0 },
+  /** 非空表示当前在 App 内置浏览器里，下载按钮可能被内核拦掉 */
+  inAppName: { type: String, default: '' },
 })
 
 const emit = defineEmits(['cancel', 'reset'])
@@ -237,6 +239,8 @@ const statusHint = computed(() => {
             :href="fileUrl(task.task_id)"
             class="btn-primary flex-1"
             download
+            target="_blank"
+            rel="noopener"
             referrerpolicy="no-referrer"
           >
             <AppIcon name="download" :size="18" />
@@ -265,6 +269,15 @@ const statusHint = computed(() => {
           </button>
         </template>
       </div>
+
+      <!-- 内置浏览器里按钮大概率点不动，就地再说一次 -->
+      <p
+        v-if="isDone && inAppName"
+        class="flex items-start justify-center gap-1.5 text-center text-xs leading-relaxed text-accent"
+      >
+        <AppIcon name="alert" :size="13" class="mt-0.5 shrink-0" />
+        <span>{{ inAppName }}内置浏览器存不了文件：点右上角「⋯」→「在浏览器打开」，再回来下载</span>
+      </p>
 
       <!-- 完成信息 -->
       <div
