@@ -40,7 +40,7 @@ defineProps({
           <span class="bg-gradient-to-r from-primary to-primary-deep bg-clip-text text-transparent">
             秒速下载
           </span>
-          到本地
+          <span class="whitespace-nowrap">到本地</span>
         </h1>
 
         <p class="mt-5 max-w-2xl text-base leading-relaxed text-ink-soft sm:text-lg">
