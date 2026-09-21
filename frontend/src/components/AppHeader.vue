@@ -8,7 +8,6 @@ const LINKS = [
   { label: '使用流程', href: '#howto' },
   { label: '平台覆盖', href: '#platforms' },
   { label: '价格', href: '#pricing' },
-  { label: '常见问题', href: '#faq' },
 ]
 
 const scrolled = ref(false)

@@ -90,7 +90,7 @@ const statusHint = computed(() => {
     pending: '等待调度',
     downloading: '正在接收数据',
     merging: '正在合并音视频轨',
-    completed: '文件已保存到临时目录',
+    completed: '文件已就绪，可直接下载',
     failed: '已中断',
     cancelled: '已取消',
   }
@@ -239,7 +239,7 @@ const statusHint = computed(() => {
             referrerpolicy="no-referrer"
           >
             <AppIcon name="download" :size="18" />
-            保存到本地
+            下载文件
           </a>
           <button type="button" class="btn-secondary sm:w-auto" @click="emit('reset')">
             <AppIcon name="rotate" :size="16" />

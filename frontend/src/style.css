@@ -227,15 +227,6 @@
   );
 }
 
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
 @keyframes shimmer {
   0% {
     transform: translateX(-100%);
@@ -266,14 +257,8 @@
   }
 }
 
-.animate-marquee {
-  animation: marquee 42s linear infinite;
-  will-change: transform;
-}
-
-.marquee-track:hover .animate-marquee {
-  animation-play-state: paused;
-}
+/* 平台墙的滚动由 PlatformSection 用 rAF 驱动：悬停减速而不是停车，
+   CSS 动画做不到「改速度不跳位置」，所以这里不留 animate-marquee。 */
 
 .animate-rise {
   animation: rise-in 420ms var(--ease-out-soft) both;
@@ -285,7 +270,6 @@
 
 /* 计划书要求桌面优先，但手机访问也要能用 */
 @media (prefers-reduced-motion: reduce) {
-  .animate-marquee,
   .animate-float,
   .animate-rise {
     animation: none;

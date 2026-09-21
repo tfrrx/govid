@@ -30,7 +30,7 @@ defineProps({
       <div class="mx-auto flex max-w-3xl flex-col items-center text-center">
         <p class="eyebrow">
           <AppIcon name="zap" :size="14" />
-          基于 yt-dlp · 覆盖 1200+ 站点 · 抖音自研通道
+          覆盖 1200+ 站点 · 无水印直出 · 完全免费
         </p>
 
         <h1
@@ -45,7 +45,7 @@ defineProps({
 
         <p class="mt-5 max-w-2xl text-base leading-relaxed text-ink-soft sm:text-lg">
           粘贴链接或 App 分享文案，即可解析标题、封面与全部可用清晰度。选好画质一键下载，
-          进度实时可见，文件只留在你自己的机器上。
+          进度实时可见，成品无水印、原画质直出。
         </p>
       </div>
 
@@ -59,7 +59,7 @@ defineProps({
           v-for="item in [
             { icon: 'zap', text: '解析通常 5 秒内出结果' },
             { icon: 'film', text: '最高 4K · 音视频自动合并' },
-            { icon: 'shield', text: '本机运行 · 不上传任何数据' },
+            { icon: 'image', text: '无水印原画 · 直取源文件' },
           ]"
           :key="item.text"
           class="flex items-center gap-2 text-sm text-ink-soft"

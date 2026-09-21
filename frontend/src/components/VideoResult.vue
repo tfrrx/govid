@@ -234,7 +234,7 @@ function select(id) {
         </button>
 
         <p class="mt-2.5 text-center text-xs leading-relaxed text-ink-soft">
-          文件仅保存在本机 tmp 目录，下载完可以随时删除
+          成品无水印，下载完成后点「下载文件」即可保存到你的设备
         </p>
       </div>
     </div>

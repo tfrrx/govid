@@ -8,7 +8,6 @@ const LINKS = [
   { label: '使用流程', href: '#howto' },
   { label: '平台覆盖', href: '#platforms' },
   { label: '价格', href: '#pricing' },
-  { label: '常见问题', href: '#faq' },
 ]
 </script>
 
@@ -27,7 +26,7 @@ const LINKS = [
             <span class="text-lg font-bold tracking-tight text-ink">GoVid</span>
           </div>
           <p class="mt-4 text-sm leading-relaxed text-ink-soft">
-            基于 yt-dlp 的视频解析与下载工具，本地运行、进度可见、中文友好。
+            无水印、多清晰度、进度可见的视频下载工具，粘贴链接或分享文案即可开始。
           </p>
         </div>
 

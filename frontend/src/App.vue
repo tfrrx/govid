@@ -5,7 +5,6 @@ import { api } from './api/video'
 import AppHeader from './components/AppHeader.vue'
 import DownloadProgress from './components/DownloadProgress.vue'
 import ErrorMessage from './components/ErrorMessage.vue'
-import FAQSection from './components/FAQSection.vue'
 import FeatureSection from './components/FeatureSection.vue'
 import FooterSection from './components/FooterSection.vue'
 import HeroSection from './components/HeroSection.vue'
@@ -71,10 +70,6 @@ function scrollToHero() {
   document
     .getElementById('govid-hero')
     ?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' })
-}
-
-function onPricingNotify() {
-  pushToast('Pro 版还在开发中，功能上线后会在这里公布', 'info', 5000)
 }
 </script>
 
@@ -167,8 +162,7 @@ function onPricingNotify() {
       <FeatureSection />
       <HowToSection />
       <PlatformSection />
-      <PricingSection @notify="onPricingNotify" />
-      <FAQSection />
+      <PricingSection />
 
       <!-- 底部收尾 CTA -->
       <section class="container-page pb-16">

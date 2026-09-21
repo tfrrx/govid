@@ -175,7 +175,7 @@ export function useDownloader() {
           stopPolling()
           if (data.status === 'completed') {
             phase.value = 'done'
-            pushToast('下载完成，可以保存到本地了', 'success', 6000)
+            pushToast('下载完成，点「下载文件」保存即可', 'success', 6000)
           } else if (data.status === 'cancelled') {
             phase.value = 'ready'
             pushToast('已取消下载', 'info', 4000)

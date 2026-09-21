@@ -14,7 +14,7 @@ const STEPS = [
   },
   {
     icon: 'download',
-    title: '保存到本地',
+    title: '保存到设备',
     desc: '下完点一下保存，文件直接落到你的下载目录，随时可以再删。',
   },
 ]
@@ -28,7 +28,7 @@ const STEPS = [
           <AppIcon name="wand" :size="14" />
           三步上手
         </p>
-        <h2 class="section-title mt-4">从链接到本地文件，只需三步</h2>
+        <h2 class="section-title mt-4">从链接到成品文件，只需三步</h2>
         <p class="section-sub mt-3">不需要注册，不需要安装浏览器扩展，打开页面就能用。</p>
       </div>
 
