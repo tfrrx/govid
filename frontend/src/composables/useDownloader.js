@@ -6,6 +6,21 @@ const POLL_INTERVAL = 1000
 const TERMINAL = new Set(['completed', 'failed', 'cancelled'])
 
 const URL_PATTERN = /^https?:\/\/[^\s]+$/i
+// 分享文案里的链接：抖音 / 快手 App 复制的整段文本里，链接两侧常跟中文标点或空格
+const URL_IN_TEXT = /https?:\/\/[^\s，,。；;、"'“”()（）【】\[\]]+/i
+
+/**
+ * 从用户输入中取出真正的链接。
+ * 纯链接原样返回；整段分享文案则抓出其中的 URL。
+ * 抖音的分享文案不是 URL，必须走提取，否则会被判成「格式不对」而卡在解析前。
+ */
+export function extractUrl(text) {
+  const value = String(text ?? '').trim()
+  if (!value) return ''
+  if (URL_PATTERN.test(value)) return value
+  const match = value.match(URL_IN_TEXT)
+  return match ? match[0] : ''
+}
 
 /**
  * GoVid 前端状态机。
@@ -65,16 +80,19 @@ export function useDownloader() {
   function validate(rawUrl) {
     const value = rawUrl.trim()
     if (!value) return '请先粘贴视频链接'
-    if (!URL_PATTERN.test(value)) return '链接格式不对，需要以 http:// 或 https:// 开头'
+    if (!extractUrl(value)) return '没找到视频链接，粘贴链接或 App 的分享文案都行'
     return ''
   }
 
   async function parse() {
+    const target = extractUrl(url.value)
     urlError.value = validate(url.value)
     if (urlError.value) {
       pushToast(urlError.value, 'error', 4000)
       return
     }
+    // 把提取到的链接回填输入框，让用户看清实际解析的是什么
+    if (target !== url.value) url.value = target
 
     stopPolling()
     task.value = null
@@ -86,7 +104,7 @@ export function useDownloader() {
     abort.current = controller
 
     try {
-      const data = await api.parse(url.value.trim(), { signal: controller.signal })
+      const data = await api.parse(target, { signal: controller.signal })
       video.value = data
       selectedId.value = data.formats?.find((f) => f.recommended)?.id ?? data.formats?.[0]?.id ?? ''
       phase.value = 'ready'

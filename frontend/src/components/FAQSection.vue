@@ -6,7 +6,7 @@ import AppIcon from './icons/AppIcon.vue'
 const FAQS = [
   {
     q: '支持哪些平台？',
-    a: '底层是 yt-dlp 官方解析器，YouTube、哔哩哔哩、Vimeo、TikTok、X、Instagram、抖音、优酷、腾讯视频等 1800+ 站点都在覆盖范围内。遇到平台改版导致解析失败，更新 yt-dlp 通常就能恢复。',
+    a: '底层是 yt-dlp 官方解析器，覆盖 YouTube、哔哩哔哩、Vimeo、优酷、腾讯视频等 1201 个顶级站点；抖音是独立的自研通道，不经过 yt-dlp，粘贴链接或 App 分享文案都能解析。遇到平台改版导致解析失败，更新 yt-dlp 通常就能恢复。',
   },
   {
     q: '为什么某些清晰度标着「需合并」？',

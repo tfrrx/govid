@@ -44,7 +44,7 @@ function clearInput() {
 
 <template>
   <form class="w-full" novalidate @submit.prevent="onSubmit">
-    <label for="govid-url" class="sr-only">视频链接</label>
+    <label for="govid-url" class="sr-only">视频链接或分享文案</label>
 
     <div
       class="flex flex-col gap-2.5 border border-hairline bg-surface p-2 shadow-float transition-shadow sm:flex-row sm:items-center sm:rounded-pill sm:pl-3"
@@ -65,7 +65,7 @@ function clearInput() {
           enterkeyhint="go"
           :aria-invalid="invalid ? 'true' : 'false'"
           :aria-describedby="message ? 'govid-url-error' : undefined"
-          placeholder="粘贴 YouTube / B 站 / Vimeo 等视频链接…"
+          placeholder="粘贴抖音 / B 站 / YouTube 等链接，或 App 分享文案…"
           class="min-w-0 flex-1 border-0 bg-transparent py-3.5 text-base text-ink outline-none placeholder:text-ink-soft/70"
           @input="onInput"
         />

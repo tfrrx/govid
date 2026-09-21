@@ -4,8 +4,8 @@ import AppIcon from './icons/AppIcon.vue'
 const STEPS = [
   {
     icon: 'link',
-    title: '粘贴视频链接',
-    desc: '从浏览器地址栏复制视频页地址，粘进首页输入框按回车即可。',
+    title: '粘贴链接或分享文案',
+    desc: '浏览器地址栏的地址、App 里复制的整段分享文案，粘进输入框按回车都行。',
   },
   {
     icon: 'layers',

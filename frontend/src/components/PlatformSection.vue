@@ -15,9 +15,10 @@ const rows = PLATFORM_ROWS.map((row) => [...row, ...row])
           <AppIcon name="globe" :size="14" />
           平台覆盖
         </p>
-        <h2 class="section-title mt-4">1800+ 平台，一条链接就够了</h2>
+        <h2 class="section-title mt-4">1200+ 平台，一条链接就够了</h2>
         <p class="section-sub mt-3">
-          底层使用 yt-dlp 官方解析器，覆盖主流视频站点；不额外做私有 hack，平台更新后跟随上游一起修。
+          底层是 yt-dlp 官方解析器，覆盖 1201 个顶级站点；抖音单独走自研通道，零 cookie
+          直取，不依赖第三方接口。
         </p>
       </div>
     </div>

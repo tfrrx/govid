@@ -30,7 +30,7 @@ defineProps({
       <div class="mx-auto flex max-w-3xl flex-col items-center text-center">
         <p class="eyebrow">
           <AppIcon name="zap" :size="14" />
-          基于 yt-dlp · 支持 1800+ 平台
+          基于 yt-dlp · 覆盖 1200+ 站点 · 抖音自研通道
         </p>
 
         <h1
@@ -44,7 +44,7 @@ defineProps({
         </h1>
 
         <p class="mt-5 max-w-2xl text-base leading-relaxed text-ink-soft sm:text-lg">
-          粘贴链接即可解析标题、封面与全部可用清晰度。选好画质一键下载，
+          粘贴链接或 App 分享文案，即可解析标题、封面与全部可用清晰度。选好画质一键下载，
           进度实时可见，文件只留在你自己的机器上。
         </p>
       </div>
@@ -57,7 +57,7 @@ defineProps({
       <ul class="mx-auto mt-9 flex max-w-3xl flex-wrap items-center justify-center gap-x-7 gap-y-3">
         <li
           v-for="item in [
-            { icon: 'zap', text: '解析平均 3 秒内出结果' },
+            { icon: 'zap', text: '解析通常 5 秒内出结果' },
             { icon: 'film', text: '最高 4K · 音视频自动合并' },
             { icon: 'shield', text: '本机运行 · 不上传任何数据' },
           ]"
