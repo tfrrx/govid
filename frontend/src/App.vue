@@ -147,6 +147,7 @@ function scrollToHero() {
               :quality-label="selectedFormat?.label || ''"
               :title="video?.title || ''"
               :file-url="fileUrl"
+              :ttl-hours="health?.task_ttl_hours || 0"
               @cancel="cancel"
               @reset="onReset"
             />

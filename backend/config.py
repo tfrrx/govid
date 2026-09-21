@@ -32,8 +32,11 @@ class Settings(BaseSettings):
     """同时在跑的真实下载数，超出部分排队（状态 pending）。"""
 
     socket_timeout: int = 30
-    task_ttl_hours: int = 6
+    task_ttl_hours: int = 2
     """任务（含临时文件）保留时长，超时由后台清理线程回收。"""
+
+    max_tmp_gb: float = 20.0
+    """tmp 目录占用上限（GB）。超出后按最旧优先回收，防止磁盘被堆满。设为 0 关闭。"""
 
     # ---- 解析 ----
     max_formats: int = 15

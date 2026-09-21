@@ -157,6 +157,70 @@ def cleanup_expired() -> int:
     return len(expired)
 
 
+def enforce_disk_quota() -> int:
+    """tmp 占用超过上限时，按最旧优先回收，避免磁盘被堆满。
+
+    与 TTL 回收互补：TTL 管「单个任务别留太久」，配额管「总量别失控」。
+    正在下载的任务目录必须跳过，否则会把别人下到一半的文件删掉。
+    """
+    limit = int(settings.max_tmp_gb * 1024 ** 3)
+    if limit <= 0:
+        return 0
+
+    root = Path(settings.download_dir)
+    if not root.exists():
+        return 0
+
+    with _lock:
+        protected = {
+            task_id
+            for task_id, task in _tasks.items()
+            if task.get("status") not in TERMINAL_STATUSES
+        }
+
+    items: list[tuple[float, Path, int]] = []
+    total = 0
+    for child in root.iterdir():
+        try:
+            if child.is_dir():
+                size = sum(f.stat().st_size for f in child.rglob("*") if f.is_file())
+            else:
+                size = child.stat().st_size
+            mtime = child.stat().st_mtime
+        except OSError:
+            continue
+        items.append((mtime, child, size))
+        total += size
+
+    if total <= limit:
+        return 0
+
+    target = int(limit * 0.8)  # 一次降到 80%，避免每轮都触发
+    removed = 0
+    for _, path, size in sorted(items):
+        if total <= target:
+            break
+        if path.name in protected:
+            continue
+        try:
+            if path.is_dir():
+                shutil.rmtree(path, ignore_errors=True)
+            else:
+                path.unlink(missing_ok=True)
+        except OSError:
+            continue
+        total -= size
+        removed += 1
+        with _lock:
+            _tasks.pop(path.name, None)
+
+    if removed:
+        logger.warning(
+            "tmp 超过 %.2f GB 上限，按最旧回收了 %d 项", settings.max_tmp_gb, removed
+        )
+    return removed
+
+
 def start_reaper() -> None:
     """后台清理线程（daemon，随进程退出）。"""
     global _reaper_started
@@ -170,6 +234,7 @@ def start_reaper() -> None:
             time.sleep(300)
             try:
                 cleanup_expired()
+                enforce_disk_quota()
             except Exception as exc:  # noqa: BLE001 - 清理线程不能死
                 logger.warning("清理任务时出错：%s", exc)
 

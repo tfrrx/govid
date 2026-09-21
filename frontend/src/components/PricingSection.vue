@@ -1,4 +1,5 @@
 <script setup>
+import sponsorSticker from '../assets/sponsor-sticker.jpg'
 import AppIcon from './icons/AppIcon.vue'
 
 const PERKS = [
@@ -45,22 +46,22 @@ const PERKS = [
           </ul>
         </article>
 
-        <!-- 赞助码：占位框，后续把收款码贴进来即可 -->
+        <!-- 赞助位：先放贴纸，收款码稍后替换 -->
         <article class="card flex flex-col items-center justify-center p-7 text-center">
           <h3 class="max-w-[16rem] text-balance text-lg font-semibold text-ink">
             如果你对此工作感到满意，请给小人一点打赏！
           </h3>
           <p class="mt-2 text-sm text-ink-soft">你的支持是继续维护下去的动力。</p>
 
-          <div
-            class="mt-6 grid aspect-square w-full max-w-[208px] place-items-center rounded-2xl border-2 border-dashed border-hairline bg-surface-sub/60"
-            aria-label="赞助码位置"
-          >
-            <span class="flex flex-col items-center gap-2 text-ink-soft/70">
-              <AppIcon name="image" :size="26" />
-              <span class="text-xs">赞助码位置</span>
-            </span>
-          </div>
+          <img
+            :src="sponsorSticker"
+            alt="赞助支持"
+            width="959"
+            height="959"
+            loading="lazy"
+            decoding="async"
+            class="mt-6 w-full max-w-[212px] rounded-2xl"
+          />
         </article>
       </div>
     </div>

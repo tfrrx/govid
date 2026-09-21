@@ -33,4 +33,5 @@ async def health() -> HealthResponse:
         ffmpeg=ffmpeg_status(),
         version=APP_VERSION,
         queue=queue,
+        task_ttl_hours=max(1, settings.task_ttl_hours),
     )

@@ -85,3 +85,5 @@ class HealthResponse(BaseModel):
     ffmpeg: dict[str, Any]
     version: str
     queue: dict[str, Any]
+    task_ttl_hours: int = 6
+    """成品文件在服务端保留的小时数，前端用它做「自动清理」提示。"""

@@ -9,6 +9,7 @@ const props = defineProps({
   qualityLabel: { type: String, default: '' },
   title: { type: String, default: '' },
   fileUrl: { type: Function, required: true },
+  ttlHours: { type: Number, default: 0 },
 })
 
 const emit = defineEmits(['cancel', 'reset'])
@@ -278,6 +279,12 @@ const statusHint = computed(() => {
           {{ task.file_size_text || formatBytes(task.file_size) || '' }}
         </span>
       </div>
+
+      <!-- 说清文件不是永久留存，省得用户惦记着去手动清理 -->
+      <p v-if="isDone && ttlHours > 0" class="flex items-center justify-center gap-1.5 text-xs text-ink-soft">
+        <AppIcon name="clock" :size="13" />
+        没别的操作的话，这份文件会在 {{ ttlHours }} 小时后从服务端自动清掉
+      </p>
     </div>
   </section>
 </template>

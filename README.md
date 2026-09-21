@@ -44,6 +44,17 @@ chmod +x run.sh
 ./run.sh --rebuild      # 强制重新构建前端
 ```
 
+### 分享给亲友试用（免备案）
+
+服务跑在本机，想在公网临时分享给别人试，用 Cloudflare 快速隧道即可 —— 不需要买服务器、不需要域名、不涉及备案：
+
+```bash
+./run.sh      # 终端 1：跑服务
+./share.sh    # 终端 2：起隧道，打印一个 https://xxxx.trycloudflare.com 地址
+```
+
+把打印出来的 https 地址发给亲友，手机直接点开就能用。代价是本机要保持开机，且地址每次重启都会变（要固定地址得有自有域名 + 命名隧道）。详见 [`docs/02-技术架构文档.md`](docs/02-技术架构文档.md) §7.6。
+
 ## 实现状态
 
 阶段 1（核心下载）与阶段 2（完整落地页）已完成并在真实浏览器中端到端验收通过，
@@ -62,7 +73,7 @@ chmod +x run.sh
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/api/health` | 健康检查（含 ffmpeg 状态与队列深度） |
+| GET | `/api/health` | 健康检查（ffmpeg 状态、队列深度、文件保留时长） |
 | POST | `/api/parse` | 解析视频，返回元信息 + 清晰度列表 |
 | POST | `/api/tasks` | 创建下载任务 |
 | GET | `/api/tasks/{id}` | 查询进度（建议 1 秒轮询一次） |
@@ -75,6 +86,7 @@ chmod +x run.sh
 ```
 govid/
 ├── run.sh                 一键启动
+├── share.sh               临时公网分享（Cloudflare 隧道）
 ├── backend/
 │   ├── main.py            FastAPI 入口 + 前端静态托管 + SPA 兜底
 │   ├── config.py          环境变量
@@ -105,7 +117,8 @@ govid/
 | `GOVID_PORT` | `8000` | 服务端口 |
 | `GOVID_MAX_CONCURRENT_DOWNLOADS` | `2` | 并发下载数 |
 | `GOVID_MAX_FORMATS` | `15` | 返回的清晰度档位上限 |
-| `GOVID_TASK_TTL_HOURS` | `6` | 任务与临时文件保留时长 |
+| `GOVID_TASK_TTL_HOURS` | `2` | 任务与临时文件保留时长；超时自动删除，前端会提示用户 |
+| `GOVID_MAX_TMP_GB` | `20` | `tmp/` 占用上限，超出按最旧回收；`0` 关闭 |
 | `GOVID_PROXY` | 空 | 网络代理，如 `http://127.0.0.1:7890`。**下 YouTube / X / Instagram 等国际站必须配** |
 
 ## 平台支持
