@@ -389,6 +389,28 @@ def parse_video(url: str) -> dict[str, Any]:
     }
 
 
+# ---------------------------------------------------------------- 直连
+
+def resolve_direct_link(url: str, format_id: str) -> str:
+    """返回浏览器可以直接访问的源站直链（服务端零流量）。
+
+    只有「源站不校验 Referer / 签名」的平台能这么干——目前是抖音：
+    它的 CDN（douyinvod.com）实测无需 Referer、无需签名，206 正常。
+
+    其他平台（B 站、YouTube 等）的直链要么需要特定请求头，要么和客户端
+    IP 绑定，浏览器直连会 403，只能走服务端中转。
+    """
+    url = (url or "").strip()
+    if douyin_extractor.is_douyin(url):
+        return douyin_extractor.resolve_direct(url, format_id)
+
+    raise GoVidError(
+        "该平台暂不支持直连下载，请用服务器中转",
+        code="direct_not_supported",
+        status_code=409,
+    )
+
+
 # ---------------------------------------------------------------- 下载
 
 ProgressCallback = Callable[[dict[str, Any]], None]

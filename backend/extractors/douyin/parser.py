@@ -312,6 +312,12 @@ def build_formats(aweme: dict[str, Any]) -> list[dict[str, Any]]:
         item["recommended"] = False
         formats.append(item)
 
+    # 抖音 CDN 直链不需要 Referer、不需要签名，浏览器可以直接取。
+    # 标上 direct 之后前端可提供「直连下载」：服务端只回一个 302，
+    # 真正的字节流由用户浏览器和 CDN 之间完成，服务端零流量。
+    for item in formats:
+        item["direct"] = True
+
     return formats
 
 

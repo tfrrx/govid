@@ -62,6 +62,11 @@ export function taskFileUrl(taskId) {
   return `${BASE}/api/tasks/${taskId}/file`
 }
 
+/** 直连下载：服务端 302 到源站 CDN，字节流不经过服务器 */
+export function taskDirectUrl(taskId) {
+  return `${BASE}/api/tasks/${taskId}/direct`
+}
+
 export function thumbnailUrl(url) {
   if (!url) return ''
   return `${BASE}/api/proxy/thumbnail?url=${encodeURIComponent(url)}`

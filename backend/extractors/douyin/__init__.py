@@ -193,6 +193,32 @@ def download(
     return path
 
 
+def resolve_direct(url: str, format_id: str) -> str:
+    """取浏览器可直接访问的 CDN 直链（无需 Referer、无需签名）。
+
+    「直连下载」用：服务端只回一个 302，真正的字节流在 CDN 和用户浏览器
+    之间完成，服务端零流量。直链有时效（约 3 小时），过期需重新解析。
+    """
+    _, aweme = _resolve_aweme(url)
+    _ensure_video(aweme)
+
+    if parser.is_image_post(aweme):
+        # 图集得先打包成 zip，这一步绕不开服务端
+        raise GoVidError(
+            "图集需要打包，无法直连下载", code="direct_not_supported", status_code=409
+        )
+
+    try:
+        urls, _ext, _size = parser.resolve_stream(aweme, format_id)
+    except ValueError as exc:
+        raise VideoUnavailableError(str(exc)) from exc
+
+    if not urls:
+        raise GoVidError("没有可用的直连地址", code="direct_not_supported", status_code=409)
+
+    return urls[0]
+
+
 def warmup() -> None:
     """可选预热：提前拉起浏览器，失败不影响主流程。"""
     browser.warmup()

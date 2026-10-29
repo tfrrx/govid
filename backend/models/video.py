@@ -25,6 +25,8 @@ class FormatItem(BaseModel):
     needs_merge: bool = False
     recommended: bool = False
     note: str | None = None
+    direct: bool = False
+    """True 表示浏览器可以直连源站 CDN 取文件（服务端只回 302，不承担流量）。"""
 
 
 class ParseResponse(BaseModel):

@@ -9,6 +9,9 @@ const props = defineProps({
   qualityLabel: { type: String, default: '' },
   title: { type: String, default: '' },
   fileUrl: { type: Function, required: true },
+  directUrl: { type: Function, default: null },
+  /** 当前清晰度能否让浏览器直连源站 CDN（服务端零流量） */
+  supportsDirect: { type: Boolean, default: false },
   ttlHours: { type: Number, default: 0 },
   /** 非空表示当前在 App 内置浏览器里，下载按钮可能被内核拦掉 */
   inAppName: { type: String, default: '' },
@@ -246,6 +249,18 @@ const statusHint = computed(() => {
             <AppIcon name="download" :size="18" />
             下载文件
           </a>
+          <a
+            v-if="supportsDirect && directUrl"
+            :href="directUrl(task.task_id)"
+            class="btn-secondary sm:w-auto"
+            target="_blank"
+            rel="noopener"
+            referrerpolicy="no-referrer"
+            title="字节流由 CDN 直接发给你，不经过本服务；桌面浏览器可能直接播放，右键另存即可"
+          >
+            <AppIcon name="zap" :size="16" />
+            直连下载
+          </a>
           <button type="button" class="btn-secondary sm:w-auto" @click="emit('reset')">
             <AppIcon name="rotate" :size="16" />
             换个视频
@@ -292,6 +307,15 @@ const statusHint = computed(() => {
           {{ task.file_size_text || formatBytes(task.file_size) || '' }}
         </span>
       </div>
+
+      <!-- 直连的取舍讲清楚，省得用户以为按钮坏了 -->
+      <p
+        v-if="isDone && supportsDirect"
+        class="rounded-xl border border-hairline bg-surface-sub/50 px-4 py-3 text-xs leading-relaxed text-ink-soft"
+      >
+        <b class="font-semibold text-ink">直连下载</b>
+        把源站地址直接交给你的浏览器，文件不经过本服务、不占服务器带宽；代价是桌面浏览器可能直接播放，右键「视频另存为」即可保存。
+      </p>
 
       <!-- 说清文件不是永久留存，省得用户惦记着去手动清理 -->
       <p v-if="isDone && ttlHours > 0" class="flex items-center justify-center gap-1.5 text-xs text-ink-soft">

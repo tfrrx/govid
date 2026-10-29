@@ -78,7 +78,8 @@ chmod +x run.sh
 | POST | `/api/tasks` | 创建下载任务 |
 | GET | `/api/tasks/{id}` | 查询进度（建议 1 秒轮询一次） |
 | POST | `/api/tasks/{id}/cancel` | 取消下载 |
-| GET | `/api/tasks/{id}/file` | 下载文件（UTF-8 文件名） |
+| GET | `/api/tasks/{id}/file` | 下载文件（UTF-8 文件名，经服务器中转） |
+| GET | `/api/tasks/{id}/direct` | 302 到源站 CDN 直链，服务器零流量（仅抖音等支持直连的平台） |
 | GET | `/api/proxy/thumbnail?url=` | 缩略图代理（绕过防盗链） |
 
 ## 目录结构

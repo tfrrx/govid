@@ -10,12 +10,12 @@ from urllib.parse import quote, urlparse
 
 import httpx
 from fastapi import APIRouter, Query, Request
-from fastapi.responses import FileResponse, Response, StreamingResponse
+from fastapi.responses import FileResponse, RedirectResponse, Response, StreamingResponse
 
 from config import settings
 from core import tasks
 from core.errors import GoVidError
-from core.media import parse_video
+from core.media import parse_video, resolve_direct_link
 from models.video import (
     CreateTaskRequest,
     CreateTaskResponse,
@@ -112,6 +112,27 @@ async def api_download_file(task_id: str) -> FileResponse:
         "X-Content-Type-Options": "nosniff",
     }
     return FileResponse(path, filename=filename, headers=headers)
+
+
+@router.get("/tasks/{task_id}/direct")
+async def api_direct_file(task_id: str) -> RedirectResponse:
+    """302 到源站 CDN 直链，服务端不承担文件流量。
+
+    用户浏览器拿到 302 后直接向 CDN 取字节，服务端只回几十字节的重定向头。
+    代价：跨域跳转后浏览器的 `download` 属性失效，桌面端可能变成在线播放
+    （可用右键另存），移动端一般交给系统下载器处理。
+    """
+    import anyio
+
+    task = tasks.get_task_raw(task_id)
+    target = await anyio.to_thread.run_sync(
+        resolve_direct_link, task["url"], task["format_id"]
+    )
+    return RedirectResponse(
+        target,
+        status_code=302,
+        headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"},
+    )
 
 
 # ---------------------------------------------------------------- 缩略图代理
