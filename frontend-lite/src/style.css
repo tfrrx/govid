@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-surface text-ink antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-colors;
+    @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
+    @apply disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary text-white hover:bg-primary-deep;
+    @apply focus-visible:outline-primary;
+  }
+
+  .btn-secondary {
+    @apply btn border border-border bg-white text-ink hover:bg-surface-hover;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-border bg-white px-4 py-3 text-base text-ink;
+    @apply placeholder:text-ink-softer;
+    @apply focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20;
+    @apply disabled:cursor-not-allowed disabled:opacity-50;
+  }
+}
