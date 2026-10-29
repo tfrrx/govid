@@ -27,6 +27,10 @@ from fastapi.staticfiles import StaticFiles  # noqa: E402
 from api import health as health_api  # noqa: E402
 from api import video as video_api  # noqa: E402
 from config import settings  # noqa: E402
+
+# Lite 模式：只加载纯 CDN 版 API
+if settings.mode == "lite":
+    from api import video_lite  # noqa: E402
 from core import tasks as task_core  # noqa: E402
 from core.ffmpeg import warmup as ffmpeg_warmup  # noqa: E402
 from core.errors import GoVidError  # noqa: E402
@@ -43,15 +47,20 @@ DIST_DIR = Path(settings.frontend_dist)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    task_core.purge_download_dir()
-    task_core.reset_tasks()
-    task_core.start_reaper()
+    # Lite 模式跳过下载相关初始化
+    if settings.mode == "full":
+        task_core.purge_download_dir()
+        task_core.reset_tasks()
+        task_core.start_reaper()
 
-    import threading
+        import threading
 
-    threading.Thread(target=ffmpeg_warmup, name="govid-ffmpeg-warmup", daemon=True).start()
+        threading.Thread(target=ffmpeg_warmup, name="govid-ffmpeg-warmup", daemon=True).start()
 
-    logger.info("GoVid 已启动 · 下载目录 %s", settings.download_dir)
+        logger.info("GoVid 已启动 · 下载目录 %s", settings.download_dir)
+    else:
+        logger.info("GoVid Lite 已启动 · 仅解析模式（不下载文件）")
+
     if not DIST_DIR.exists():
         logger.warning("未找到前端产物 %s，请先在 frontend/ 执行 npm run build", DIST_DIR)
     yield
@@ -107,7 +116,14 @@ async def unhandled_error_handler(request: Request, exc: Exception) -> JSONRespo
 
 
 app.include_router(health_api.router, prefix="/api")
-app.include_router(video_api.router, prefix="/api")
+
+# 根据模式选择 API 路由
+if settings.mode == "lite":
+    logger.info("运行模式：纯 CDN 版（只支持直连平台）")
+    app.include_router(video_lite.router, prefix="/api")
+else:
+    logger.info("运行模式：完整版（支持流式代理 + 本地下载）")
+    app.include_router(video_api.router, prefix="/api")
 
 
 # ---------------------------------------------------------------- 前端静态资源

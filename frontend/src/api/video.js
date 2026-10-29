@@ -1,5 +1,10 @@
 const BASE = (import.meta.env.VITE_API_BASE ?? '').replace(/\/$/, '')
 
+// 运行模式：从环境变量读取
+// "full" = 完整版（支持流式代理 + 本地下载）
+// "lite" = 纯 CDN 版（只解析直链，不下载）
+const MODE = import.meta.env.VITE_GOVID_MODE ?? 'full'
+
 export class ApiError extends Error {
   constructor(message, code = 'http_error', status = 0) {
     super(message)
@@ -56,6 +61,14 @@ export const api = {
 
   cancelTask: (taskId, options) =>
     request(`/api/tasks/${taskId}/cancel`, { ...options, method: 'POST' }),
+
+  // 新增：查询支持的平台（Lite 模式）
+  supportedPlatforms: (options) => request('/api/supported-platforms', options),
+}
+
+/** 判断当前是否为 Lite 模式 */
+export function isLiteMode() {
+  return MODE === 'lite'
 }
 
 export function taskFileUrl(taskId) {

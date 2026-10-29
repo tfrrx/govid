@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoVid Lite 模式测试</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #0F172A;
+      color: #F8FAFC;
+    }
+    h1 { color: #38BDF8; }
+    input, button {
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+    }
+    input {
+      width: 400px;
+      background: #1E293B;
+      color: #F8FAFC;
+    }
+    button {
+      background: #38BDF8;
+      color: #0F172A;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover { background: #0EA5E9; }
+    #result {
+      margin-top: 20px;
+      padding: 16px;
+      background: #1E293B;
+      border-radius: 8px;
+      border: 1px solid #334155;
+    }
+    .format-item {
+      padding: 12px;
+      margin: 8px 0;
+      background: #334155;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .format-item:hover { background: #475569; }
+    .direct { border-left: 3px solid #10B981; }
+    .no-direct { border-left: 3px solid #F59E0B; }
+  </style>
+</head>
+<body>
+  <h1>🎬 GoVid Lite 模式测试</h1>
+  <p>纯 CDN 版 - 零服务器流量</p>
+
+  <div>
+    <input id="url" type="text" placeholder="粘贴视频链接（抖音/B站/YouTube）"
+           value="https://www.bilibili.com/video/BV1xx411c7XD">
+    <button onclick="parse()">解析</button>
+  </div>
+
+  <div id="result"></div>
+
+  <script>
+    async function parse() {
+      const url = document.getElementById('url').value
+      const resultDiv = document.getElementById('result')
+      resultDiv.innerHTML = '<p>解析中...</p>'
+
+      try {
+        const res = await fetch('http://localhost:8888/api/parse', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        })
+
+        if (!res.ok) {
+          const error = await res.json()
+          resultDiv.innerHTML = `<p style="color: #EF4444;">❌ ${error.detail}</p>`
+          return
+        }
+
+        const data = await res.json()
+
+        let html = `
+          <h3>${data.title}</h3>
+          <p><strong>平台：</strong>${data.platform} | <strong>时长：</strong>${data.duration}秒</p>
+          <h4>可用清晰度：</h4>
+        `
+
+        data.formats.forEach(fmt => {
+          const isDirect = fmt.direct
+          const badge = isDirect
+            ? '<span style="color: #10B981;">✓ 支持直连</span>'
+            : '<span style="color: #F59E0B;">⚠️ 需要完整版</span>'
+
+          html += `
+            <div class="format-item ${isDirect ? 'direct' : 'no-direct'}"
+                 onclick="download('${fmt.id}', ${isDirect})">
+              <strong>${fmt.label}</strong> · ${fmt.resolution || '未知分辨率'} ${badge}
+            </div>
+          `
+        })
+
+        resultDiv.innerHTML = html
+
+      } catch (err) {
+        resultDiv.innerHTML = `<p style="color: #EF4444;">❌ 请求失败：${err.message}</p>`
+      }
+    }
+
+    function download(formatId, isDirect) {
+      if (!isDirect) {
+        alert('该清晰度不支持直连，需要使用 Full 版本或实现 Service Worker')
+        return
+      }
+
+      // 在 Lite 模式下，前端需要再请求一次完整的 URL
+      // 这里简化演示，实际应该从 parse 结果中拿到 URL
+      alert(`直连下载：format_id = ${formatId}\n\n实际使用时，前端直接 window.location.href = format.url 即可触发浏览器下载`)
+    }
+  </script>
+</body>
+</html>
