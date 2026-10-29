@@ -1,0 +1,27 @@
+# Render 部署配置
+# 免费 Web Service 配置
+
+services:
+  # 后端 API
+  - type: web
+    name: govid-backend
+    runtime: docker
+    repo: https://github.com/tfrrx/govid
+    branch: main
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: GOVID_CORS_ORIGINS
+        value: "*"
+      - key: GOVID_DOWNLOAD_DIR
+        value: "/tmp/downloads"
+      - key: GOVID_LOG_LEVEL
+        value: "INFO"
+    healthCheckPath: /api/health
+    autoDeploy: false
+
+# 免费层限制：
+# - 每月 750 小时运行时间（够用）
+# - 15 分钟无请求后自动休眠
+# - 首次唤醒需要 30-60 秒
+# - 512MB RAM（够用）
+# - 无需信用卡

@@ -317,6 +317,7 @@ def build_formats(aweme: dict[str, Any]) -> list[dict[str, Any]]:
     # 真正的字节流由用户浏览器和 CDN 之间完成，服务端零流量。
     for item in formats:
         item["direct"] = True
+        item["download_method"] = "direct"
 
     return formats
 
@@ -356,6 +357,8 @@ def _image_formats(images: list[Any]) -> list[dict[str, Any]]:
             "needs_merge": False,
             "recommended": True,
             "note": note,
+            "direct": False,
+            "download_method": "download",
         }
     ]
 

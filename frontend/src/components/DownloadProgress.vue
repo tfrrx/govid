@@ -10,8 +10,11 @@ const props = defineProps({
   title: { type: String, default: '' },
   fileUrl: { type: Function, required: true },
   directUrl: { type: Function, default: null },
+  corsProxyUrl: { type: Function, default: null },
   /** 当前清晰度能否让浏览器直连源站 CDN（服务端零流量） */
   supportsDirect: { type: Boolean, default: false },
+  /** 当前平台是否支持 CORS 代理（B 站 / YouTube 等） */
+  supportsCorsProxy: { type: Boolean, default: false },
   ttlHours: { type: Number, default: 0 },
   /** 非空表示当前在 App 内置浏览器里，下载按钮可能被内核拦掉 */
   inAppName: { type: String, default: '' },
@@ -238,7 +241,37 @@ const statusHint = computed(() => {
       <!-- 操作区 -->
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
         <template v-if="isDone">
+          <!-- 优先级 1: CORS 代理（B 站 / YouTube 等，零服务器流量） -->
           <a
+            v-if="supportsCorsProxy && corsProxyUrl"
+            :href="corsProxyUrl(task.task_id)"
+            class="btn-primary flex-1"
+            download
+            target="_blank"
+            rel="noopener"
+            referrerpolicy="no-referrer"
+            title="通过 CDN 代理直接下载，不占用服务器带宽"
+          >
+            <AppIcon name="zap" :size="18" />
+            直连下载
+          </a>
+          <!-- 优先级 2: 抖音等完全开放的 CDN -->
+          <a
+            v-else-if="supportsDirect && directUrl"
+            :href="directUrl(task.task_id)"
+            class="btn-primary flex-1"
+            download
+            target="_blank"
+            rel="noopener"
+            referrerpolicy="no-referrer"
+            title="字节流由 CDN 直接发给你，不经过本服务"
+          >
+            <AppIcon name="zap" :size="18" />
+            直连下载
+          </a>
+          <!-- 优先级 3: 传统服务器下载（兜底） -->
+          <a
+            v-else
             :href="fileUrl(task.task_id)"
             class="btn-primary flex-1"
             download
@@ -249,18 +282,22 @@ const statusHint = computed(() => {
             <AppIcon name="download" :size="18" />
             下载文件
           </a>
+
+          <!-- 备选按钮:服务器下载（当有直连时提供兜底选项） -->
           <a
-            v-if="supportsDirect && directUrl"
-            :href="directUrl(task.task_id)"
+            v-if="supportsCorsProxy || supportsDirect"
+            :href="fileUrl(task.task_id)"
             class="btn-secondary sm:w-auto"
+            download
             target="_blank"
             rel="noopener"
             referrerpolicy="no-referrer"
-            title="字节流由 CDN 直接发给你，不经过本服务；桌面浏览器可能直接播放，右键另存即可"
+            title="传统方式：从服务器下载（占用服务器带宽）"
           >
-            <AppIcon name="zap" :size="16" />
-            直连下载
+            <AppIcon name="download" :size="16" />
+            服务器下载
           </a>
+
           <button type="button" class="btn-secondary sm:w-auto" @click="emit('reset')">
             <AppIcon name="rotate" :size="16" />
             换个视频
@@ -310,11 +347,11 @@ const statusHint = computed(() => {
 
       <!-- 直连的取舍讲清楚，省得用户以为按钮坏了 -->
       <p
-        v-if="isDone && supportsDirect"
+        v-if="isDone && (supportsCorsProxy || supportsDirect)"
         class="rounded-xl border border-hairline bg-surface-sub/50 px-4 py-3 text-xs leading-relaxed text-ink-soft"
       >
         <b class="font-semibold text-ink">直连下载</b>
-        把源站地址直接交给你的浏览器，文件不经过本服务、不占服务器带宽；代价是桌面浏览器可能直接播放，右键「视频另存为」即可保存。
+        文件直接从平台 CDN 发给你的浏览器，不经过本服务、不占服务器带宽。桌面浏览器可能会直接播放视频，右键「视频另存为」即可保存到本地。如遇问题，可切换「服务器下载」兜底。
       </p>
 
       <!-- 说清文件不是永久留存，省得用户惦记着去手动清理 -->

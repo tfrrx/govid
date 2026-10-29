@@ -39,6 +39,12 @@ class Settings(BaseSettings):
     thumbnail_timeout: int = 10
     thumbnail_max_bytes: int = 5 * 1024 * 1024
 
+    # CORS 代理（用于前端直连需要特殊 Headers 的平台）
+    cors_proxy_url: str = os.getenv(
+        "GOVID_CORS_PROXY_URL",
+        "https://govid-cors-proxy.vercel.app/api/cors-proxy"
+    )
+
     # ---------------------------------------------------------------- 前端
 
     frontend_dist: str = str(Path(__file__).parent.parent / "frontend" / "dist")
@@ -51,6 +57,7 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = False
+        extra = "allow"  # 允许环境变量中的额外字段
 
 
 settings = Settings()

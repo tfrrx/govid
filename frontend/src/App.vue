@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 
-import { api, taskDirectUrl } from './api/video'
+import { api, taskDirectUrl, taskCorsProxyUrl } from './api/video'
 import AppHeader from './components/AppHeader.vue'
 import DownloadProgress from './components/DownloadProgress.vue'
 import ErrorMessage from './components/ErrorMessage.vue'
@@ -197,7 +197,9 @@ function scrollToHero() {
               :title="video?.title || ''"
               :file-url="fileUrl"
               :direct-url="taskDirectUrl"
-              :supports-direct="!!selectedFormat?.direct"
+              :cors-proxy-url="taskCorsProxyUrl"
+              :supports-direct="selectedFormat?.download_method === 'direct'"
+              :supports-cors-proxy="selectedFormat?.download_method === 'stream'"
               :ttl-hours="health?.task_ttl_hours || 0"
               :in-app-name="inAppName"
               @cancel="cancel"

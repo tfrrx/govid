@@ -64,6 +64,9 @@ export const api = {
 
   // 新增：查询支持的平台（Lite 模式）
   supportedPlatforms: (options) => request('/api/supported-platforms', options),
+
+  // 获取 CORS 代理链接（B 站 / YouTube 等需要特殊 Headers 的平台）
+  getCorsProxyLink: (taskId, options) => request(`/api/tasks/${taskId}/cors-proxy`, options),
 }
 
 /** 判断当前是否为 Lite 模式 */
@@ -78,6 +81,16 @@ export function taskFileUrl(taskId) {
 /** 直连下载：服务端 302 到源站 CDN，字节流不经过服务器 */
 export function taskDirectUrl(taskId) {
   return `${BASE}/api/tasks/${taskId}/direct`
+}
+
+/** 流式代理：服务器边拉边推，不落盘，省磁盘 I/O */
+export function taskStreamUrl(taskId) {
+  return `${BASE}/api/tasks/${taskId}/stream`
+}
+
+/** CORS 代理链接：用于前端直接下载需要特殊 Headers 的平台（B 站 / YouTube） */
+export function taskCorsProxyUrl(taskId) {
+  return `${BASE}/api/tasks/${taskId}/cors-proxy`
 }
 
 export function thumbnailUrl(url) {

@@ -151,6 +151,11 @@ def _base_opts() -> dict[str, Any]:
 def build_formats(info: dict[str, Any], *, max_formats: int | None = None) -> list[dict[str, Any]]:
     """把 yt-dlp 的 formats 压成前端可读的清晰度列表。"""
     limit = max_formats or settings.max_formats
+
+    # 确定平台的默认下载方式
+    extractor = info.get("extractor_key") or info.get("extractor")
+    default_method = _download_method_for_extractor(extractor)
+
     raw: Iterable[dict] = info.get("formats") or []
 
     progressive: dict[int, dict] = {}
@@ -222,6 +227,7 @@ def build_formats(info: dict[str, Any], *, max_formats: int | None = None) -> li
                 "needs_merge": True,
                 "recommended": True,
                 "note": "自动挑选最高画质并合并音轨",
+                "download_method": default_method,
             }
         )
 
@@ -259,6 +265,7 @@ def build_formats(info: dict[str, Any], *, max_formats: int | None = None) -> li
                 "needs_merge": needs_merge,
                 "recommended": False,
                 "note": note,
+                "download_method": default_method,
             }
         )
 
@@ -280,6 +287,7 @@ def build_formats(info: dict[str, Any], *, max_formats: int | None = None) -> li
                 "needs_merge": False,
                 "recommended": False,
                 "note": "只要声音，转码为 MP3",
+                "download_method": default_method,
             }
         )
 
@@ -301,6 +309,7 @@ def build_formats(info: dict[str, Any], *, max_formats: int | None = None) -> li
                 "needs_merge": False,
                 "recommended": True,
                 "note": "平台未提供清晰度明细",
+                "download_method": default_method,
             },
         )
 
@@ -327,6 +336,29 @@ def _tier(fmt: dict) -> int:
     if width and height:
         return int(min(width, height))
     return int(height or 0)
+
+
+def _download_method_for_extractor(extractor: str | None) -> str:
+    """根据平台决定最优下载方式。
+
+    返回: "direct" | "stream" | "download"
+    """
+    if not extractor:
+        return "download"
+
+    extractor_lower = extractor.lower()
+
+    # 平台能力矩阵
+    CAPABILITIES = {
+        "douyin": "direct",       # 抖音：CDN 完全开放
+        "bilibili": "stream",     # B 站：流式代理（需要 Referer）
+        "youtube": "stream",      # YouTube：流式代理
+        "twitter": "download",    # Twitter：IP 绑定，必须先下载
+        "xiaohongshu": "stream",  # 小红书：流式代理
+        "weibo": "stream",        # 微博：流式代理
+    }
+
+    return CAPABILITIES.get(extractor_lower, "download")
 
 
 def parse_video(url: str) -> dict[str, Any]:
@@ -408,6 +440,128 @@ def resolve_direct_link(url: str, format_id: str) -> str:
         "该平台暂不支持直连下载，请用服务器中转",
         code="direct_not_supported",
         status_code=409,
+    )
+
+
+def resolve_download_method(url: str, format_id: str) -> dict:
+    """智能选择最优下载方式（直连 / 流式代理 / 传统下载）。
+
+    返回格式:
+    {
+        "method": "direct" | "stream" | "download",
+        "platform": "平台名称",
+        "direct_url": "直链（method=direct 时存在）",
+        "stream_info": {...}  "流式代理所需信息（method=stream 时存在）"
+    }
+
+    三种方式说明：
+    - direct: 浏览器直接下载源站 CDN（抖音等无 Referer 限制的平台）
+    - stream: 服务器流式代理（B 站 / YouTube 等需要特定 Headers 的平台）
+    - download: 传统先下载到服务器（Twitter 等 IP 绑定平台）
+    """
+    url = (url or "").strip()
+
+    # 抖音：直连
+    if douyin_extractor.is_douyin(url):
+        return {
+            "method": "direct",
+            "platform": "抖音",
+            "direct_url": douyin_extractor.resolve_direct(url, format_id),
+        }
+
+    # 其他平台：通过 yt-dlp 解析
+    opts = _base_opts()
+    opts["format"] = format_id
+    opts["skip_download"] = True
+
+    with yt_dlp.YoutubeDL(opts) as ydl:
+        try:
+            info = ydl.extract_info(url, download=False)
+        except Exception as e:
+            raise translate_error(e)
+
+    extractor = info.get("extractor", "").lower()
+    platform_name = _PLATFORM_NAMES.get(extractor, extractor)
+
+    # 平台能力矩阵
+    CAPABILITIES = {
+        "bilibili": "stream",    # B 站：流式代理（需要 Referer）
+        "youtube": "stream",     # YouTube：流式代理
+        "twitter": "download",   # Twitter：IP 绑定，必须先下载
+        "xiaohongshu": "stream", # 小红书：流式代理
+        "weibo": "stream",       # 微博：流式代理
+    }
+
+    method = CAPABILITIES.get(extractor, "download")
+
+    if method == "stream":
+        # 获取视频直链
+        requested_formats = info.get("requested_formats")
+        if requested_formats:
+            video_url = requested_formats[0]["url"]
+            audio_url = requested_formats[1]["url"] if len(requested_formats) > 1 else None
+        else:
+            video_url = info.get("url")
+            audio_url = None
+
+        if not video_url:
+            raise GoVidError("无法获取视频链接", code="no_url")
+
+        # 确定需要的 Headers
+        headers = {}
+        if extractor == "bilibili":
+            headers = {
+                "Referer": "https://www.bilibili.com/",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            }
+        elif extractor == "youtube":
+            headers = {
+                "Referer": "https://www.youtube.com/",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            }
+        elif extractor == "xiaohongshu":
+            headers = {
+                "Referer": "https://www.xiaohongshu.com/",
+                "User-Agent": "Mozilla/5.0",
+            }
+        elif extractor == "weibo":
+            headers = {
+                "Referer": "https://weibo.com/",
+                "User-Agent": "Mozilla/5.0",
+            }
+
+        return {
+            "method": "stream",
+            "platform": platform_name,
+            "stream_info": {
+                "video_url": video_url,
+                "audio_url": audio_url,
+                "headers": headers,
+                "has_audio": audio_url is not None,
+            }
+        }
+
+    # 默认：传统下载
+    return {
+        "method": "download",
+        "platform": platform_name,
+    }
+
+
+# 保留旧函数名以兼容现有代码
+def resolve_cors_proxy_link(url: str, format_id: str) -> dict:
+    """【已废弃】使用 resolve_download_method 代替。"""
+    result = resolve_download_method(url, format_id)
+    if result["method"] == "direct":
+        return {
+            "method": "direct",
+            "url": result["direct_url"],
+            "platform": result["platform"]
+        }
+    # 其他情况返回错误，提示调用新函数
+    raise GoVidError(
+        "请使用 resolve_download_method 代替 resolve_cors_proxy_link",
+        code="deprecated_api"
     )
 
 

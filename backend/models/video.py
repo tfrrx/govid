@@ -27,6 +27,8 @@ class FormatItem(BaseModel):
     note: str | None = None
     direct: bool = False
     """True 表示浏览器可以直连源站 CDN 取文件（服务端只回 302，不承担流量）。"""
+    download_method: Literal["direct", "stream", "download"] = "download"
+    """推荐的下载方式：direct=直连CDN, stream=流式代理, download=传统下载"""
 
 
 class ParseResponse(BaseModel):
