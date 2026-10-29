@@ -1,0 +1,11 @@
+name = "govid-lite"
+compatibility_date = "2024-01-01"
+
+# Cloudflare Pages 配置
+pages_build_output_dir = "frontend-lite/dist"
+
+[build]
+command = "cd frontend-lite && npm install && npm run build"
+
+[env.production]
+vars = { NODE_ENV = "production" }
