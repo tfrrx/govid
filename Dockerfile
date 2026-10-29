@@ -30,8 +30,9 @@ RUN pip install --no-cache-dir aiofiles httpx
 RUN pip install --no-cache-dir yt-dlp[default]
 RUN pip install --no-cache-dir playwright
 
-# 安装 Playwright 浏览器依赖（只装必需的）
+# 安装 Playwright 浏览器依赖和 Chromium 本体
 RUN playwright install-deps chromium
+RUN playwright install chromium
 
 # 复制后端代码
 COPY backend/ .

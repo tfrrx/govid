@@ -16,6 +16,9 @@ services:
         value: "/tmp/downloads"
       - key: GOVID_LOG_LEVEL
         value: "INFO"
+      - key: GOVID_CORS_PROXY_URL
+        # 部署后需要手动更新为：https://你的后端地址.onrender.com/api/cors-proxy
+        value: "https://govid-hqln.onrender.com/api/cors-proxy"
     healthCheckPath: /api/health
     autoDeploy: false
 

@@ -40,9 +40,10 @@ class Settings(BaseSettings):
     thumbnail_max_bytes: int = 5 * 1024 * 1024
 
     # CORS 代理（用于前端直连需要特殊 Headers 的平台）
+    # 使用后端自己的 CORS 代理接口
     cors_proxy_url: str = os.getenv(
         "GOVID_CORS_PROXY_URL",
-        "https://govid-cors-proxy.vercel.app/api/cors-proxy"
+        "http://localhost:8000/api/cors-proxy"  # 默认使用后端自己的接口
     )
 
     # ---------------------------------------------------------------- 前端

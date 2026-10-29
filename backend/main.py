@@ -26,6 +26,7 @@ from fastapi.staticfiles import StaticFiles  # noqa: E402
 
 from api import health as health_api  # noqa: E402
 from api import video as video_api  # noqa: E402
+from api import cors_proxy as cors_proxy_api  # noqa: E402
 from config import settings  # noqa: E402
 
 # Lite 模式：只加载纯 CDN 版 API
@@ -116,6 +117,7 @@ async def unhandled_error_handler(request: Request, exc: Exception) -> JSONRespo
 
 
 app.include_router(health_api.router, prefix="/api")
+app.include_router(cors_proxy_api.router, prefix="/api")  # CORS 代理
 
 # 根据模式选择 API 路由
 if settings.mode == "lite":
